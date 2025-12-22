@@ -1,1 +1,241 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2025 Jonathan D.A. Jewell
+= Baremetal SSG
+:toc: macro
+:toclevels: 2
+:icons: font
+:source-highlighter: rouge
 
+image:https://img.shields.io/badge/adapters-28-blue[Adapters]
+image:https://img.shields.io/badge/languages-18-green[Languages]
+image:https://img.shields.io/badge/RSR-Gold-gold[RSR Compliance]
+image:https://img.shields.io/badge/license-AGPL--3.0-blue[License]
+
+Bare-metal SSG adapters providing direct, low-level access to 28 static site generators across 18 programming languages.
+
+toc::[]
+
+== Overview
+
+Baremetal SSG is a satellite project in the https://github.com/hyperpolymath/poly-ssg-mcp[poly-ssg-mcp] network. It provides high-performance, minimal-abstraction adapters for static site generators written in functional, systems, and scientific programming languages.
+
+=== Key Features
+
+* *28 SSG Adapters* — Comprehensive coverage of polyglot SSGs
+* *18 Languages* — Rust, Haskell, Elixir, Julia, Clojure, and more
+* *MCP Integration* — Seamless connection to poly-ssg-mcp hub
+* *RSR Compliant* — Follows Rhodium Standard Repository guidelines
+* *Deno Runtime* — Modern, secure JavaScript/TypeScript runtime
+
+== Quick Start
+
+[source,bash]
+----
+# Clone the repository
+git clone https://github.com/hyperpolymath/baremetal-ssg.git
+cd baremetal-ssg
+
+# Install dependencies
+just deps
+
+# List available adapters
+just list
+
+# Run tests
+just test
+----
+
+== Adapters
+
+=== By Language
+
+[cols="1,3"]
+|===
+|Language |SSGs
+
+|*Rust*
+|Zola, Cobalt, mdBook
+
+|*Haskell*
+|Hakyll, Ema
+
+|*Elixir*
+|Serum, Tableau
+
+|*Clojure*
+|Cryogen, Perun
+
+|*Julia*
+|Franklin, Documenter
+
+|*Racket*
+|Frog, Pollen
+
+|*OCaml*
+|YOCaml
+
+|*F#*
+|Fornax
+
+|*Scala*
+|Laika, ScalaTex
+
+|*Common Lisp*
+|Coleslaw
+
+|*Nim*
+|Nimrod, Nimble-Publisher
+
+|*D*
+|Reggae
+
+|*Crystal*
+|Marmot
+
+|*Swift*
+|Publish
+
+|*Erlang*
+|Zotonic, Wub
+
+|*Tcl*
+|StaticWebPages
+
+|*Babashka*
+|Babashka
+
+|*Kotlin*
+|Orchid
+|===
+
+=== Using an Adapter
+
+[source,javascript]
+----
+import * as zola from "./adapters/zola.js";
+
+// Connect to the SSG
+await zola.connect();
+
+// Initialize a new site
+await zola.tools[0].execute({ path: "./my-site" });
+
+// Build the site
+await zola.tools[1].execute({ path: "./my-site" });
+----
+
+== Commands
+
+=== Development
+
+[source,bash]
+----
+just deps      # Install dependencies
+just fmt       # Format code
+just lint      # Lint code
+just build     # Validate adapters
+just clean     # Clean artifacts
+----
+
+=== Testing
+
+[source,bash]
+----
+just test          # Unit tests
+just test-e2e      # End-to-end tests
+just test-all      # All tests
+just test-adapter NAME  # Test specific adapter
+----
+
+=== Compliance
+
+[source,bash]
+----
+just rsr-check       # RSR compliance check
+just security-check  # Security audit
+just scm-check       # Validate SCM files
+----
+
+=== Containers
+
+[source,bash]
+----
+just container-build  # Build container
+just container-run    # Run locally
+----
+
+== Project Structure
+
+[source,text]
+----
+baremetal-ssg/
+├── adapters/           # 28 SSG adapters
+│   ├── zola.js
+│   ├── hakyll.js
+│   └── ...
+├── tests/              # Test suites
+├── *.scm               # SCM metadata files
+├── justfile            # Task runner
+├── Mustfile            # Mandatory checks
+├── cookbook.adoc       # Recipes & patterns
+└── README.adoc         # This file
+----
+
+== SCM Files
+
+|===
+|File |Purpose
+
+|`STATE.scm`
+|Project state and completion status
+
+|`META.scm`
+|Architecture decisions and practices
+
+|`ECOSYSTEM.scm`
+|Position in hyperpolymath ecosystem
+
+|`ROADMAP.scm`
+|Development roadmap and milestones
+
+|`PLAYBOOK.scm`
+|Workflows and runbooks
+
+|`AGENTIC.scm`
+|AI/agent capabilities
+
+|`NEUROSYM.scm`
+|Neuro-symbolic mappings
+
+|`AI.scm`
+|AI assistant guidelines
+|===
+
+== Contributing
+
+See link:CONTRIBUTING.md[CONTRIBUTING.md] for guidelines.
+
+=== Adding a New Adapter
+
+1. Copy the template: `just new-adapter NAME LANGUAGE`
+2. Implement the adapter interface
+3. Add tests in `tests/adapters/`
+4. Update documentation
+5. Submit a pull request
+
+== Security
+
+See link:SECURITY.md[SECURITY.md] for our security policy.
+
+Report vulnerabilities via https://github.com/hyperpolymath/baremetal-ssg/security/advisories/new[GitHub Security Advisories].
+
+== License
+
+AGPL-3.0-or-later — See link:LICENSE.txt[LICENSE.txt]
+
+== Links
+
+* https://github.com/hyperpolymath/poly-ssg-mcp[poly-ssg-mcp Hub]
+* https://github.com/hyperpolymath/rhodium-standard-repositories[RSR Guidelines]
+* link:cookbook.adoc[Cookbook]
+* link:CONTRIBUTING.md[Contributing]

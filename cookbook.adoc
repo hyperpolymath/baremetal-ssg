@@ -1,0 +1,720 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2025 Jonathan D.A. Jewell
+= Baremetal SSG Cookbook
+:toc: left
+:toclevels: 3
+:sectnums:
+:icons: font
+:source-highlighter: rouge
+
+== Overview
+
+This cookbook provides recipes for common operations with baremetal-ssg.
+All commands, configurations, and patterns are documented here.
+
+[horizontal]
+<<cli-reference>>:: Command-line interface reference
+<<just-recipes>>:: Just task runner recipes
+<<nickel-formulae>>:: Nickel configuration formulae
+<<adapter-patterns>>:: SSG adapter patterns
+<<hooks-configuration>>:: Git hooks and CI/CD hooks
+
+'''
+
+[[cli-reference]]
+== CLI Reference
+
+=== Core Commands
+
+==== Adapter Operations
+
+[source,bash]
+----
+# List all available adapters
+just list
+
+# Get adapter information
+just adapter-info zola
+
+# Test specific adapter
+just test-adapter hakyll
+
+# Create new adapter
+just new-adapter mysite rust
+----
+
+==== Build Operations
+
+[source,bash]
+----
+# Validate all adapters
+just build
+
+# Format code
+just fmt
+
+# Lint code
+just lint
+
+# Type check
+just check
+
+# Clean build artifacts
+just clean
+----
+
+==== Testing Operations
+
+[source,bash]
+----
+# Run unit tests
+just test
+
+# Run end-to-end tests
+just test-e2e
+
+# Run all tests
+just test-all
+
+# Generate coverage report
+just coverage
+----
+
+==== Container Operations
+
+[source,bash]
+----
+# Build container image
+just container-build
+
+# Build Alpine variant
+just container-build-alpine
+
+# Run container
+just container-run
+
+# Push to registry
+just container-push latest
+----
+
+=== CLI Combinatorics
+
+==== Chained Commands
+
+[source,bash]
+----
+# Full validation pipeline
+just fmt && just lint && just check && just test
+
+# Quick check before commit
+just fmt-check && just lint && just test
+
+# Complete release validation
+just test-all && just rsr-check && just security-check
+----
+
+==== Parallel Execution
+
+[source,bash]
+----
+# Test multiple adapters in parallel
+parallel just test-adapter ::: zola hakyll cobalt serum
+
+# Validate and test simultaneously
+just build & just test & wait
+----
+
+==== Permutations
+
+[source,bash]
+----
+# Test each adapter type
+for lang in rust haskell elixir julia; do
+  echo "Testing $lang adapters..."
+  grep -l "language = \"$lang\"" adapters/*.js | xargs -I{} just test-adapter {}
+done
+
+# Build for all container variants
+for variant in latest alpine fedora; do
+  just container-build-$variant
+done
+----
+
+==== Concatenated Workflows
+
+[source,bash]
+----
+# Development workflow
+just deps && just build && just test && just dev
+
+# Release workflow
+just test-all && just rsr-check && just release-prep 1.0.0 && just release-tag 1.0.0
+
+# CI workflow
+just fmt-check && just lint && just test-all && just security-check && just container-build
+----
+
+'''
+
+[[just-recipes]]
+== Just Recipes
+
+=== Recipe Categories
+
+==== Development Recipes
+
+[cols="1,2,2"]
+|===
+|Recipe |Description |Usage
+
+|`deps`
+|Install project dependencies
+|`just deps`
+
+|`fmt`
+|Format all code with deno fmt
+|`just fmt`
+
+|`lint`
+|Lint code with deno lint
+|`just lint`
+
+|`check`
+|TypeScript type checking
+|`just check`
+
+|`build`
+|Validate all adapters
+|`just build`
+
+|`clean`
+|Remove build artifacts
+|`just clean`
+|===
+
+==== Testing Recipes
+
+[cols="1,2,2"]
+|===
+|Recipe |Description |Usage
+
+|`test`
+|Run unit tests
+|`just test`
+
+|`test-e2e`
+|Run end-to-end tests
+|`just test-e2e`
+
+|`test-all`
+|Run complete test suite
+|`just test-all`
+
+|`test-adapter`
+|Test specific adapter
+|`just test-adapter zola`
+
+|`coverage`
+|Generate coverage report
+|`just coverage`
+|===
+
+==== Compliance Recipes
+
+[cols="1,2,2"]
+|===
+|Recipe |Description |Usage
+
+|`rsr-check`
+|RSR compliance validation
+|`just rsr-check`
+
+|`security-check`
+|Security audit
+|`just security-check`
+
+|`audit`
+|Dependency audit
+|`just audit`
+
+|`scm-check`
+|Validate SCM files
+|`just scm-check`
+|===
+
+==== Container Recipes
+
+[cols="1,2,2"]
+|===
+|Recipe |Description |Usage
+
+|`container-build`
+|Build main container
+|`just container-build`
+
+|`container-build-alpine`
+|Build Alpine variant
+|`just container-build-alpine`
+
+|`container-run`
+|Run container locally
+|`just container-run`
+
+|`container-push`
+|Push to registry
+|`just container-push latest`
+|===
+
+==== Utility Recipes
+
+[cols="1,2,2"]
+|===
+|Recipe |Description |Usage
+
+|`list`
+|List all adapters
+|`just list`
+
+|`count`
+|Count adapters and languages
+|`just count`
+
+|`status`
+|Show project status
+|`just status`
+
+|`help`
+|Show quick help
+|`just help`
+|===
+
+'''
+
+[[nickel-formulae]]
+== Nickel Formulae
+
+=== Configuration Schema
+
+[source,nickel]
+----
+# baremetal-ssg.ncl - Project configuration schema
+
+let AdapterConfig = {
+  name : String,
+  language : String,
+  binary : String,
+  commands : {
+    init : String,
+    build : String,
+    serve : String,
+    clean : String,
+  },
+}
+
+let ProjectConfig = {
+  name : String,
+  version : String,
+  adapters : Array AdapterConfig,
+  settings : {
+    parallel_builds : Bool,
+    cache_enabled : Bool,
+    log_level : [| 'debug, 'info, 'warn, 'error |],
+  },
+}
+
+in ProjectConfig
+----
+
+=== Adapter Formula
+
+[source,nickel]
+----
+# adapters/zola.ncl - Zola adapter configuration
+
+{
+  name = "Zola",
+  language = "Rust",
+  binary = "zola",
+  commands = {
+    init = "zola init",
+    build = "zola build",
+    serve = "zola serve",
+    clean = "rm -rf public/",
+  },
+  options = {
+    drafts = { flag = "--drafts", type = 'bool },
+    base_url = { flag = "--base-url", type = 'string },
+    output_dir = { flag = "--output-dir", type = 'string },
+  },
+}
+----
+
+=== Build Pipeline Formula
+
+[source,nickel]
+----
+# pipeline.ncl - Build pipeline configuration
+
+let Pipeline = {
+  stages : Array {
+    name : String,
+    commands : Array String,
+    parallel : Bool,
+    continue_on_error : Bool,
+  },
+}
+
+let default_pipeline = {
+  stages = [
+    { name = "lint", commands = ["just fmt-check", "just lint"], parallel = true, continue_on_error = false },
+    { name = "test", commands = ["just test"], parallel = false, continue_on_error = false },
+    { name = "build", commands = ["just build"], parallel = false, continue_on_error = false },
+    { name = "security", commands = ["just security-check"], parallel = false, continue_on_error = true },
+  ],
+}
+
+in default_pipeline
+----
+
+=== Validation Formula
+
+[source,nickel]
+----
+# validate.ncl - Validation rules
+
+let ValidationRules = {
+  rsr_compliance = {
+    required_files = ["README.adoc", "LICENSE.txt", "SECURITY.md", "CONTRIBUTING.md"],
+    required_headers = ["SPDX-License-Identifier", "SPDX-FileCopyrightText"],
+    min_adapters = 28,
+    min_scm_files = 6,
+  },
+  security = {
+    forbidden_patterns = ["eval(", "exec(", "password=", "secret="],
+    required_protocols = ["https"],
+    env_vars_only = true,
+  },
+}
+
+in ValidationRules
+----
+
+'''
+
+[[adapter-patterns]]
+== Adapter Patterns
+
+=== Standard Adapter Template
+
+[source,javascript]
+----
+// SPDX-License-Identifier: MIT
+// SPDX-FileCopyrightText: 2025 Jonathan D.A. Jewell
+
+/**
+ * {SSG_NAME} adapter - {DESCRIPTION}
+ * {URL}
+ */
+
+export const name = "{SSG_NAME}";
+export const language = "{LANGUAGE}";
+export const description = "{DESCRIPTION}";
+
+let connected = false;
+let binaryPath = "{BINARY}";
+
+async function runCommand(args, cwd = null) {
+  const cmd = new Deno.Command(binaryPath, {
+    args,
+    cwd: cwd || Deno.cwd(),
+    stdout: "piped",
+    stderr: "piped",
+  });
+  const output = await cmd.output();
+  const decoder = new TextDecoder();
+  return {
+    success: output.success,
+    stdout: decoder.decode(output.stdout),
+    stderr: decoder.decode(output.stderr),
+    code: output.code,
+  };
+}
+
+export async function connect() {
+  try {
+    const result = await runCommand(["--version"]);
+    connected = result.success;
+    return connected;
+  } catch {
+    connected = false;
+    return false;
+  }
+}
+
+export async function disconnect() {
+  connected = false;
+}
+
+export function isConnected() {
+  return connected;
+}
+
+export const tools = [
+  // Define tools here
+];
+----
+
+=== Tool Definition Pattern
+
+[source,javascript]
+----
+{
+  name: "{ssg}_build",
+  description: "Build the {SSG} site",
+  inputSchema: {
+    type: "object",
+    properties: {
+      path: { type: "string", description: "Path to site root" },
+      // Additional properties
+    },
+  },
+  execute: async ({ path, ...options }) => {
+    const args = ["build"];
+    // Add options to args
+    return await runCommand(args, path);
+  },
+}
+----
+
+'''
+
+[[hooks-configuration]]
+== Hooks Configuration
+
+=== Git Hooks
+
+==== Pre-commit Hook
+
+[source,bash]
+----
+#!/bin/bash
+# .githooks/pre-commit
+
+set -e
+
+echo "Running pre-commit checks..."
+
+# Format check
+deno fmt --check adapters/ || {
+    echo "Format check failed. Run 'just fmt' to fix."
+    exit 1
+}
+
+# Lint
+deno lint adapters/ || {
+    echo "Lint check failed."
+    exit 1
+}
+
+# Check for secrets
+if grep -rE '(password|secret|api_key)\s*=' adapters/; then
+    echo "Potential secrets detected!"
+    exit 1
+fi
+
+echo "Pre-commit checks passed!"
+----
+
+==== Pre-push Hook
+
+[source,bash]
+----
+#!/bin/bash
+# .githooks/pre-push
+
+set -e
+
+echo "Running pre-push checks..."
+
+# Run tests
+just test || {
+    echo "Tests failed!"
+    exit 1
+}
+
+# RSR compliance
+just rsr-check || {
+    echo "RSR compliance check failed!"
+    exit 1
+}
+
+echo "Pre-push checks passed!"
+----
+
+=== Claude Code Hooks
+
+==== Session Start Hook
+
+[source,json]
+----
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "command": "just status",
+        "description": "Show project status on session start"
+      },
+      {
+        "command": "just rsr-check",
+        "description": "Verify RSR compliance"
+      }
+    ]
+  }
+}
+----
+
+==== PreToolUse Hook
+
+[source,json]
+----
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write",
+        "command": "just fmt-check",
+        "description": "Check formatting before writes"
+      }
+    ]
+  }
+}
+----
+
+==== PostToolUse Hook
+
+[source,json]
+----
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "command": "just lint",
+        "description": "Lint after writes"
+      }
+    ]
+  }
+}
+----
+
+=== CI/CD Pipeline Configuration
+
+==== GitHub Actions Workflow
+
+[source,yaml]
+----
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v1
+
+      - name: Format check
+        run: deno fmt --check adapters/
+
+      - name: Lint
+        run: deno lint adapters/
+
+      - name: Type check
+        run: deno check adapters/*.js
+
+  test:
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v1
+
+      - name: Run tests
+        run: deno test --allow-all tests/
+
+  security:
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: javascript
+      - uses: github/codeql-action/analyze@v3
+----
+
+'''
+
+== Appendix
+
+=== Command Reference Quick Sheet
+
+[source,text]
+----
+# Development
+just deps           # Install dependencies
+just fmt            # Format code
+just lint           # Lint code
+just build          # Validate adapters
+
+# Testing
+just test           # Unit tests
+just test-e2e       # E2E tests
+just test-all       # All tests
+
+# Compliance
+just rsr-check      # RSR compliance
+just security-check # Security audit
+
+# Containers
+just container-build     # Build image
+just container-run       # Run locally
+just container-push TAG  # Push to registry
+
+# Info
+just list           # List adapters
+just count          # Count adapters
+just status         # Project status
+----
+
+=== Environment Variables
+
+[cols="1,2,1"]
+|===
+|Variable |Description |Default
+
+|`DENO_DIR`
+|Deno cache directory
+|`~/.cache/deno`
+
+|`LOG_LEVEL`
+|Logging verbosity
+|`info`
+
+|`CI`
+|Running in CI environment
+|`false`
+
+|`GITHUB_TOKEN`
+|GitHub API token (CI only)
+|N/A
+|===
