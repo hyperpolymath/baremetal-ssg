@@ -1,241 +1,57 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
-// SPDX-FileCopyrightText: 2025 Jonathan D.A. Jewell
-= Baremetal SSG
-:toc: macro
-:toclevels: 2
+= baremetal-ssg
+:toc:
+:toc-title: Table of Contents
 :icons: font
-:source-highlighter: rouge
 
-image:https://img.shields.io/badge/adapters-28-blue[Adapters]
-image:https://img.shields.io/badge/languages-18-green[Languages]
-image:https://img.shields.io/badge/RSR-Gold-gold[RSR Compliance]
-image:https://img.shields.io/badge/license-AGPL--3.0-blue[License]
+**Hardware-native static site generation in RISC-V Assembly.**
+"Baremetal" — No OS, no runtime, no abstractions. A generator that treats site synthesis as a formal sequence of register-level operations.
 
-Bare-metal SSG adapters providing direct, low-level access to 28 static site generators across 18 programming languages.
+== Who Is This For?
+* **Firmware Engineers** targeting **ASICs** and **Edge tech** where every byte of overhead is a failure.
+* **Low-level purists** who want to generate site content directly from bootloaders or custom silicon.
+* **Systems Architects** requiring an engine that can run on a **RISC-V** soft-core within an FPGA without a kernel.
+* **Security Researchers** needing a generator with a zero-syscall attack surface.
 
-toc::[]
+== Why baremetal-ssg?
 
-== Overview
+=== Instruction-Level Synthesis
+`baremetal-ssg` is written in pure RISC-V assembly (`rv64gc`). Site generation is reduced to a series of atomic memory moves and integer operations, bypassing the "bloat" of even the most efficient C compilers.
 
-Baremetal SSG is a satellite project in the https://github.com/hyperpolymath/poly-ssg-mcp[poly-ssg-mcp] network. It provides high-performance, minimal-abstraction adapters for static site generators written in functional, systems, and scientific programming languages.
+=== Zero-Syscall Architecture
+Designed to run on the metal. It manages its own memory and I/O, making it the fastest possible generator for high-integrity **Edge** hardware where a kernel is an unnecessary security risk.
 
-=== Key Features
+=== Register-Mapped Templates
+Templates are not parsed; they are memory-mapped. By treating content as a series of offsets, `baremetal-ssg` achieves true $O(1)$ access times for site structure, limited only by hardware clock speed.
 
-* *28 SSG Adapters* — Comprehensive coverage of polyglot SSGs
-* *18 Languages* — Rust, Haskell, Elixir, Julia, Clojure, and more
-* *MCP Integration* — Seamless connection to poly-ssg-mcp hub
-* *RSR Compliant* — Follows Rhodium Standard Repository guidelines
-* *Deno Runtime* — Modern, secure JavaScript/TypeScript runtime
+=== Formal Interrupt Logic
+Build steps are triggered by hardware interrupts. This ensures that the generation process is perfectly timed and deterministic, making it ideal for safety-critical documentation displays on custom hardware.
 
 == Quick Start
-
-[source,bash]
+[source,oil]
 ----
-# Clone the repository
-git clone https://github.com/hyperpolymath/baremetal-ssg.git
-cd baremetal-ssg
+# Assemble the core using the RISC-V toolchain via asdf
+just setup
 
-# Install dependencies
-just deps
+# Flash the generator logic to the target ASIC or Simulator
+just flash
 
-# List available adapters
-just list
-
-# Run tests
-just test
+# Build the site directly on the hardware (Zero-OS mode)
+just build-hardware
 ----
 
-== Adapters
+== Features
+* **O(1) Memory Management** - Manual stack and heap control for absolute predictability.
+* **Zero-Runtime Overhead** - No garbage collection, no heap-fragmentation, no hidden control flow.
+* **Podman-First Simulation** - Test assembly logic in a QEMU-driven Podman container.
+* **Accessibility** - Hardware-accelerated metadata tagging for **BSL**, **GSL**, and **Makaton**.
 
-=== By Language
+== Requirements
+* **RISC-V GNU Toolchain** (rv64gc)
+* **QEMU** (for simulation/testing)
+* **Just** (Orchestrator)
 
-[cols="1,3"]
-|===
-|Language |SSGs
-
-|*Rust*
-|Zola, Cobalt, mdBook
-
-|*Haskell*
-|Hakyll, Ema
-
-|*Elixir*
-|Serum, Tableau
-
-|*Clojure*
-|Cryogen, Perun
-
-|*Julia*
-|Franklin, Documenter
-
-|*Racket*
-|Frog, Pollen
-
-|*OCaml*
-|YOCaml
-
-|*F#*
-|Fornax
-
-|*Scala*
-|Laika, ScalaTex
-
-|*Common Lisp*
-|Coleslaw
-
-|*Nim*
-|Nimrod, Nimble-Publisher
-
-|*D*
-|Reggae
-
-|*Crystal*
-|Marmot
-
-|*Swift*
-|Publish
-
-|*Erlang*
-|Zotonic, Wub
-
-|*Tcl*
-|StaticWebPages
-
-|*Babashka*
-|Babashka
-
-|*Kotlin*
-|Orchid
-|===
-
-=== Using an Adapter
-
-[source,javascript]
-----
-import * as zola from "./adapters/zola.js";
-
-// Connect to the SSG
-await zola.connect();
-
-// Initialize a new site
-await zola.tools[0].execute({ path: "./my-site" });
-
-// Build the site
-await zola.tools[1].execute({ path: "./my-site" });
-----
-
-== Commands
-
-=== Development
-
-[source,bash]
-----
-just deps      # Install dependencies
-just fmt       # Format code
-just lint      # Lint code
-just build     # Validate adapters
-just clean     # Clean artifacts
-----
-
-=== Testing
-
-[source,bash]
-----
-just test          # Unit tests
-just test-e2e      # End-to-end tests
-just test-all      # All tests
-just test-adapter NAME  # Test specific adapter
-----
-
-=== Compliance
-
-[source,bash]
-----
-just rsr-check       # RSR compliance check
-just security-check  # Security audit
-just scm-check       # Validate SCM files
-----
-
-=== Containers
-
-[source,bash]
-----
-just container-build  # Build container
-just container-run    # Run locally
-----
-
-== Project Structure
-
-[source,text]
-----
-baremetal-ssg/
-├── adapters/           # 28 SSG adapters
-│   ├── zola.js
-│   ├── hakyll.js
-│   └── ...
-├── tests/              # Test suites
-├── *.scm               # SCM metadata files
-├── justfile            # Task runner
-├── Mustfile            # Mandatory checks
-├── cookbook.adoc       # Recipes & patterns
-└── README.adoc         # This file
-----
-
-== SCM Files
-
-|===
-|File |Purpose
-
-|`STATE.scm`
-|Project state and completion status
-
-|`META.scm`
-|Architecture decisions and practices
-
-|`ECOSYSTEM.scm`
-|Position in hyperpolymath ecosystem
-
-|`ROADMAP.scm`
-|Development roadmap and milestones
-
-|`PLAYBOOK.scm`
-|Workflows and runbooks
-
-|`AGENTIC.scm`
-|AI/agent capabilities
-
-|`NEUROSYM.scm`
-|Neuro-symbolic mappings
-
-|`AI.scm`
-|AI assistant guidelines
-|===
-
-== Contributing
-
-See link:CONTRIBUTING.md[CONTRIBUTING.md] for guidelines.
-
-=== Adding a New Adapter
-
-1. Copy the template: `just new-adapter NAME LANGUAGE`
-2. Implement the adapter interface
-3. Add tests in `tests/adapters/`
-4. Update documentation
-5. Submit a pull request
-
-== Security
-
-See link:SECURITY.md[SECURITY.md] for our security policy.
-
-Report vulnerabilities via https://github.com/hyperpolymath/baremetal-ssg/security/advisories/new[GitHub Security Advisories].
+== Part of poly-ssg
+`baremetal-ssg` is the hardware-native cornerstone of the **poly-ssg** family.
 
 == License
-
-AGPL-3.0-or-later — See link:LICENSE.txt[LICENSE.txt]
-
-== Links
-
-* https://github.com/hyperpolymath/poly-ssg-mcp[poly-ssg-mcp Hub]
-* https://github.com/hyperpolymath/rhodium-standard-repositories[RSR Guidelines]
-* link:cookbook.adoc[Cookbook]
-* link:CONTRIBUTING.md[Contributing]
+AGPL-3.0-or-later

@@ -3,81 +3,66 @@
 ;; SPDX-FileCopyrightText: 2025 Jonathan D.A. Jewell
 
 (define metadata
-  '((version . "1.0.0") (updated . "2025-12-22") (project . "baremetal-ssg")))
+  '((version . "0.1.0") (updated . "2025-12-18") (project . "baremetal-ssg")))
 
 (define current-position
-  '((phase . "v1.0 - Production Ready")
-    (overall-completion . 100)
-    (total-components . 44)
-    (components-complete . 44)))
-
-(define component-status
-  '((core-engine
-     ((status . "complete") (count . 4)
-      (items . ("Deno Runtime" "Adapter Interface" "Command Execution" "Output Processing"))))
-    (build-system
-     ((status . "complete") (count . 4)
-      (items . ("Justfile" "Mustfile" "Containerfile" "CI/CD Pipeline"))))
-    (site-generation
-     ((status . "complete") (count . 4)
-      (items . ("Init Commands" "Build Commands" "Serve Commands" "Deploy Commands"))))
-    (adapters
-     ((status . "complete") (count . 28)
-      (items . ("Zola" "Cobalt" "mdBook" "Hakyll" "Ema" "Serum" "Tableau" "Cryogen"
-                "Perun" "Franklin" "Documenter" "Frog" "Pollen" "YOCaml" "Fornax"
-                "Laika" "ScalaTex" "Coleslaw" "Nimrod" "Nimble-Publisher" "Reggae"
-                "Marmot" "Publish" "Zotonic" "Wub" "StaticWebPages" "Babashka" "Orchid"))))
-    (testing
-     ((status . "complete") (count . 4)
-      (items . ("Unit Tests" "Integration Tests" "E2E Tests" "CI Validation"))))))
+  '((phase . "v0.1 - Foundation")
+    (overall-completion . 35)
+    (components
+     ((rsr-compliance ((status . "complete") (completion . 100)))
+      (adapters ((status . "complete") (completion . 100) (count . 28)))
+      (security-policy ((status . "complete") (completion . 100)))
+      (documentation ((status . "in-progress") (completion . 20)))
+      (testing ((status . "not-started") (completion . 0)))
+      (mcp-integration ((status . "planned") (completion . 0)))))))
 
 (define blockers-and-issues
   '((critical ())
-    (high-priority ())
-    (resolved
-     (("SECURITY.md placeholders" . "2025-12-22")
-      ("Project naming inconsistency" . "2025-12-22")))))
+    (high-priority
+     (("README needs content" . documentation)
+      ("No test suite" . testing)))))
 
 (define critical-next-actions
-  '((immediate ())
+  '((immediate
+     (("Write README documentation" . high)
+      ("Set up Deno test framework" . high)))
     (this-week
-     (("Performance benchmarking" . medium)
-      ("Additional adapter documentation" . low)))
+     (("Add integration tests for adapters" . medium)
+      ("Verify MCP hub integration" . medium)))
     (this-month
-     (("Container image publishing" . medium)
-      ("Registry submission" . low)))))
+     (("Add CI workflow for testing" . low)
+      ("Create contribution guide updates" . low)))))
 
 (define roadmap
-  '((v1.0-production
-     ((status . "complete")
-      (goals . ("28 SSG adapters" "RSR compliance" "Security policy" "Full documentation"
-                "Justfile commands" "Mustfile recipes" "CI/CD pipeline" "Cookbook"))
-      (completion . 100)))
-    (v1.1-optimization
+  '((v0.1-foundation
+     ((status . "in-progress")
+      (goals . ("28 SSG adapters" "RSR compliance" "Security policy" "Basic documentation"))
+      (completion . 80)))
+    (v0.2-testing
      ((status . "planned")
-      (goals . ("Performance benchmarks" "Caching layer" "Parallel builds"))
+      (goals . ("Unit tests for all adapters" "Integration test framework" "CI/CD pipeline"))
       (completion . 0)))
-    (v1.2-ecosystem
+    (v0.3-mcp-integration
      ((status . "planned")
-      (goals . ("Container registry publishing" "npm/deno.land publishing" "Cross-satellite testing"))
+      (goals . ("Full poly-ssg-mcp hub integration" "MCP protocol compliance" "Cross-adapter testing"))
       (completion . 0)))
-    (v2.0-advanced
+    (v0.4-documentation
      ((status . "planned")
-      (goals . ("Watch mode" "Incremental builds" "Multi-site orchestration"))
+      (goals . ("API documentation" "Usage examples" "Contribution guidelines"))
+      (completion . 0)))
+    (v1.0-stable
+     ((status . "planned")
+      (goals . ("Production ready" "Full test coverage" "Published to registries"))
       (completion . 0)))))
 
 (define session-history
   '((snapshots
      ((date . "2025-12-15") (session . "initial") (notes . "SCM files added"))
-     ((date . "2025-12-18") (session . "security-review") (notes . "Fixed SECURITY.md placeholders"))
-     ((date . "2025-12-22") (session . "full-implementation") (notes . "Complete 44/44 components, Justfile, Mustfile, cookbook")))))
+     ((date . "2025-12-18") (session . "security-review") (notes . "Fixed SECURITY.md placeholders, updated project names in SCM files")))))
 
 (define state-summary
   '((project . "baremetal-ssg")
-    (version . "1.0.0")
-    (completion . 100)
-    (components . "44/44")
-    (adapters . 28)
-    (languages . 18)
+    (completion . 35)
     (blockers . 0)
-    (updated . "2025-12-22")))
+    (adapters . 28)
+    (updated . "2025-12-18")))

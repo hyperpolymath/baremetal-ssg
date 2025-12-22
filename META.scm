@@ -3,14 +3,14 @@
 ;;; META.scm — baremetal-ssg
 
 (define-module (baremetal-ssg meta)
-  #:export (architecture-decisions development-practices design-rationale component-status))
+  #:export (architecture-decisions development-practices design-rationale))
 
 (define architecture-decisions
   '((adr-001
      (title . "RSR Compliance")
      (status . "accepted")
      (date . "2025-12-15")
-     (context . "Baremetal SSG satellite in the hyperpolymath ecosystem")
+     (context . "Baremetal SSG adapters in the hyperpolymath ecosystem")
      (decision . "Follow Rhodium Standard Repository guidelines")
      (consequences . ("RSR Gold target" "SHA-pinned actions" "SPDX headers" "Multi-platform CI")))
     (adr-002
@@ -36,25 +36,10 @@
      (consequences . ("Broad ecosystem coverage" "Language-specific optimizations" "Unified interface")))))
 
 (define development-practices
-  '((code-style
-     (languages . ("JavaScript" "Deno" "Scheme"))
-     (formatter . "deno fmt")
-     (linter . "deno lint"))
-    (security
-     (sast . "CodeQL")
-     (credentials . "env vars only")
-     (container-scanning . "trivy")
-     (dependency-scanning . "dependabot"))
-    (testing
-     (framework . "deno test")
-     (coverage-minimum . 70)
-     (e2e . "integration tests"))
-    (versioning
-     (scheme . "SemVer 2.0.0"))
-    (documentation
-     (format . "AsciiDoc")
-     (api-docs . "generated")
-     (changelog . "CHANGELOG.md"))))
+  '((code-style (languages . ("JavaScript" "Deno")) (formatter . "deno fmt") (linter . "deno lint"))
+    (security (sast . "CodeQL") (credentials . "env vars only"))
+    (testing (coverage-minimum . 70))
+    (versioning (scheme . "SemVer 2.0.0"))))
 
 (define design-rationale
   '((why-rsr "RSR ensures consistency, security, and maintainability across the hyperpolymath ecosystem.")

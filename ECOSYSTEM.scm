@@ -5,8 +5,8 @@
 (ecosystem
   (version "1.0.0")
   (name "baremetal-ssg")
-  (type "satellite")
-  (purpose "Bare-metal SSG adapters providing direct, low-level access to 28 static site generators")
+  (type "project")
+  (purpose "Static site generator adapters for the hyperpolymath ecosystem")
 
   (position-in-ecosystem
     "Satellite project in the hyperpolymath poly-ssg-mcp network. Follows RSR guidelines.
@@ -57,8 +57,5 @@
     ((language "Babashka") (ssgs ("Babashka")))
     ((language "Kotlin") (ssgs ("Orchid"))))
 
-  (what-this-is "Baremetal SSG adapters for 28 static site generators across 18 programming languages")
-  (what-this-is-not
-    "- NOT a replacement for poly-ssg-mcp hub
-     - NOT exempt from RSR compliance
-     - NOT supporting mainstream JS/Python/Ruby SSGs (use other satellites)"))
+  (what-this-is "Baremetal SSG adapters for 28+ static site generators")
+  (what-this-is-not "- NOT exempt from RSR compliance"))
